@@ -2,7 +2,7 @@ using AnnoRDA.FileDB.Structs;
 
 namespace AnnoRDA.FileDB.Reader
 {
-    class FileDBReader : System.IDisposable
+    public class FileDBReader : System.IDisposable
     {
         private readonly BinaryReader reader;
 

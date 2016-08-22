@@ -2,7 +2,7 @@ using AnnoRDA.FileDB.Structs;
 
 namespace AnnoRDA.FileDB.Reader
 {
-    class ContentReader
+    public class ContentReader
     {
         private readonly BinaryReader reader;
         private readonly Tags tags;

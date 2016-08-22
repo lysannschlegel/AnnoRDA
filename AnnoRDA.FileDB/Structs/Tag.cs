@@ -1,6 +1,6 @@
 namespace AnnoRDA.FileDB.Structs
 {
-    class Tag
+    public class Tag
     {
         public enum TagType
         {

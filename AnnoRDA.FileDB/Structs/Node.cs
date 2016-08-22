@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace AnnoRDA.FileDB.Structs
 {
-    class Node
+    public class Node
     {
         public Tag Tag { get; }
         public List<Node> Children { get; }
@@ -27,7 +27,7 @@ namespace AnnoRDA.FileDB.Structs
         }
     }
 
-    static class AttributeValueConverter
+    public static class AttributeValueConverter
     {
         public static string ValueToString(this Node node)
         {

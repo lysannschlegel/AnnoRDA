@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace AnnoRDA.FileDB.Structs
 {
-    class Tags
+    public class Tags
     {
         private readonly Dictionary<ushort, Tag> tags;
 

@@ -1,6 +1,6 @@
 namespace AnnoRDA.FileDB.Writer
 {
-    class BinaryWriter : System.IO.BinaryWriter
+    public class BinaryWriter : System.IO.BinaryWriter
     {
         public BinaryWriter(System.IO.Stream input, System.Text.Encoding encoding, bool leaveOpen)
         : base(input, encoding, leaveOpen)

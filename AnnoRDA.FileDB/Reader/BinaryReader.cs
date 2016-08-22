@@ -1,6 +1,6 @@
 namespace AnnoRDA.FileDB.Reader
 {
-    class BinaryReader : System.IO.BinaryReader
+    public class BinaryReader : System.IO.BinaryReader
     {
         public BinaryReader(System.IO.Stream input, System.Text.Encoding encoding, bool leaveOpen)
         : base(input, encoding, leaveOpen)
