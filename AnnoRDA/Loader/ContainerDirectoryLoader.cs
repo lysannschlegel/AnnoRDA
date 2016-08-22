@@ -12,16 +12,16 @@ namespace AnnoRDA.Loader
     {
         private ContainerFileLoader fileLoader = new ContainerFileLoader();
 
-        public FileSystem Load(string path)
+        public FileSystem Load(string path, out IEnumerable<string> containerPaths)
         {
-            return Load(path, CancellationToken.None);
+            return Load(path, CancellationToken.None, out containerPaths);
         }
 
-        public FileSystem Load(string path, CancellationToken ct)
+        public FileSystem Load(string path, CancellationToken ct, out IEnumerable<string> containerPaths)
         {
             ct.ThrowIfCancellationRequested();
 
-            IEnumerable<string> containerPaths = Directory.GetFiles(path, "data*.rda");
+            containerPaths = Directory.GetFiles(path, "data*.rda");
             containerPaths = SortContainerPaths(containerPaths);
 
             FileSystem result = new FileSystem();

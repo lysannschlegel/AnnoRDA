@@ -24,8 +24,7 @@ namespace AnnoRDA.Tests.Util
             Assert.LessThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("aaa", "aab"), -1);
             Assert.LessThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("aaaa", "aab"), -1);
         }
-
-    #if !NETSTANDARD
+        
         [Fact]
         public void TestFileNameWithNumbersStringComparison()
         {
@@ -33,7 +32,6 @@ namespace AnnoRDA.Tests.Util
             Assert.LessThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("data1.rda", "data10.rda"), -1);
             Assert.LessThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("data2.rda", "data10.rda"), -1);
         }
-    #endif
 
         [Fact]
         public void TestFileNameWithUnderscoresStringComparison()
