@@ -12,9 +12,15 @@ namespace AnnoRDA
     {
         public Folder Root { get; set; } = new Folder("");
 
-        public void Merge(FileSystem overwriteFS, System.Threading.CancellationToken ct)
+        public async System.Threading.Tasks.Task<FileSystem> GetFileSystemByMerging(FileSystem overwriteFS, System.Threading.CancellationToken ct)
         {
-            this.Root.Merge(overwriteFS.Root, ct);
+            Folder newRoot = await this.Root.GetFolderByMerging(overwriteFS.Root, ct);
+            return new FileSystem() { Root = newRoot };
+        }
+
+        public async System.Threading.Tasks.Task OverwriteWith(FileSystem overwriteFS, System.Threading.CancellationToken ct)
+        {
+            await this.Root.OverwriteWith(overwriteFS.Root, ct);
         }
     }
 
@@ -90,7 +96,32 @@ namespace AnnoRDA
             NewOrReplace,
         }
 
-        public void Merge(Folder overwriteFolder, System.Threading.CancellationToken ct)
+        public async System.Threading.Tasks.Task<Folder> GetFolderByMerging(Folder overwriteFolder, System.Threading.CancellationToken ct)
+        {
+            Folder result = new Folder(this.Name);
+
+            foreach (var overwriteSubFolder in overwriteFolder.Folders) {
+                ct.ThrowIfCancellationRequested();
+
+                var baseSubFolder = result.Folders.FirstOrDefault((f) => f.Name == overwriteSubFolder.Name);
+                if (baseSubFolder == null) {
+                    baseSubFolder = new Folder(overwriteSubFolder.Name);
+                }
+
+                Folder newSubFolder = await baseSubFolder.GetFolderByMerging(overwriteSubFolder, ct);
+                result.Add(newSubFolder, AddMode.New);
+            }
+
+            foreach (var overwriteFile in overwriteFolder.Files) {
+                ct.ThrowIfCancellationRequested();
+
+                result.Add(overwriteFile.DeepClone());
+            }
+
+            return result;
+        }
+
+        public async System.Threading.Tasks.Task OverwriteWith(Folder overwriteFolder, System.Threading.CancellationToken ct)
         {
             foreach (var overwriteSubFolder in overwriteFolder.Folders) {
                 ct.ThrowIfCancellationRequested();
@@ -100,7 +131,8 @@ namespace AnnoRDA
                     baseSubFolder = new Folder(overwriteSubFolder.Name);
                     this.Add(baseSubFolder);
                 }
-                baseSubFolder.Merge(overwriteSubFolder, ct);
+
+                await baseSubFolder.OverwriteWith(overwriteSubFolder, ct);
             }
 
             foreach (var overwriteFile in overwriteFolder.Files) {

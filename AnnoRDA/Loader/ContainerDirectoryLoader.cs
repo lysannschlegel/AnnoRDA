@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 
 namespace AnnoRDA.Loader
 {
@@ -12,28 +11,40 @@ namespace AnnoRDA.Loader
     {
         private ContainerFileLoader fileLoader = new ContainerFileLoader();
 
-        public FileSystem Load(string path, out IEnumerable<string> containerPaths)
+        public struct Result
         {
-            return Load(path, CancellationToken.None, out containerPaths);
+            public FileSystem FileSystem { get; }
+            public IEnumerable<string> ContainerPaths { get; }
+
+            public Result(FileSystem fileSystem, IEnumerable<string> containerPaths)
+            {
+                this.FileSystem = fileSystem;
+                this.ContainerPaths = containerPaths;
+            }
         }
 
-        public FileSystem Load(string path, CancellationToken ct, out IEnumerable<string> containerPaths)
+        public async System.Threading.Tasks.Task<Result> Load(string path)
+        {
+            return await Load(path, System.Threading.CancellationToken.None);
+        }
+
+        public async System.Threading.Tasks.Task<Result> Load(string path, System.Threading.CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
 
-            containerPaths = Directory.GetFiles(path, "data*.rda");
+            IEnumerable<string> containerPaths = Directory.GetFiles(path, "data*.rda");
             containerPaths = SortContainerPaths(containerPaths);
 
-            FileSystem result = new FileSystem();
+            FileSystem fileSystem = new FileSystem();
 
             foreach (string containerPath in containerPaths) {
                 ct.ThrowIfCancellationRequested();
 
-                FileSystem containerFileSystem = LoadContainerFileSystem(containerPath, ct);
-                result.Merge(containerFileSystem, ct);
+                FileSystem containerFileSystem = await LoadContainerFileSystem(containerPath, ct);
+                fileSystem = await fileSystem.GetFileSystemByMerging(containerFileSystem, ct);
             }
 
-            return result;
+            return new Result(fileSystem, containerPaths);
         }
 
         public static IEnumerable<string> SortContainerPaths(IEnumerable<string> paths)
@@ -41,9 +52,9 @@ namespace AnnoRDA.Loader
             return paths.OrderBy((p) => p, new Util.NaturalFilenameStringComparer());
         }
 
-        private FileSystem LoadContainerFileSystem(string containerPath, CancellationToken ct)
+        private async System.Threading.Tasks.Task<FileSystem> LoadContainerFileSystem(string containerPath, System.Threading.CancellationToken ct)
         {
-            return this.fileLoader.Load(containerPath, ct);
+            return await this.fileLoader.Load(containerPath, ct);
         }
     }
 }

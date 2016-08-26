@@ -27,13 +27,15 @@ namespace AnnoRDA.FileDB.Writer
             writer.Dispose();
         }
 
-        public void WriteFileDB(AnnoRDA.FileSystem fileSystem, ArchiveFileMap archiveFiles)
+        public async System.Threading.Tasks.Task WriteFileDB(AnnoRDA.FileSystem fileSystem, ArchiveFileMap archiveFiles)
         {
-            Tags tags = this.CreateTags();
+            await System.Threading.Tasks.Task.Run(() => {
+                Tags tags = this.CreateTags();
 
-            this.WriteArchiveMap(this.writer, tags, fileSystem, archiveFiles);
-            this.WriteTag(this.writer, tags, "StructureEnd");
-            this.WriteTagsSections(this.writer, tags);
+                this.WriteArchiveMap(this.writer, tags, fileSystem, archiveFiles);
+                this.WriteTag(this.writer, tags, "StructureEnd");
+                this.WriteTagsSections(this.writer, tags);
+            });
         }
 
         private Tags CreateTags()

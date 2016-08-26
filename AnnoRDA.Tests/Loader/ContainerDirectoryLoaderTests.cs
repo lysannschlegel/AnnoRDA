@@ -1,14 +1,11 @@
 ﻿using System.Linq;
-using System.Threading;
 using System;
-using AnnoRDA.Tests.TestUtil;
 using Xunit;
 
 namespace AnnoRDA.Tests.Loader
 {
     public class ContainerDirectoryLoaderTests
     {
-        #if !NETSTANDARD
         [Fact]
         public void TestFileNameSorting()
         {
@@ -42,20 +39,19 @@ namespace AnnoRDA.Tests.Loader
 
             Assert.Equal(expected, actual);
         }
-        #endif
 
         [Fact]
-        public void TestMergeEmptyFileSystems()
+        public async System.Threading.Tasks.Task TestMergeEmptyFileSystems()
         {
             AnnoRDA.FileSystem baseFS = new FileSystem();
             AnnoRDA.FileSystem overwriteFS = new FileSystem();
 
-            baseFS.Merge(overwriteFS, System.Threading.CancellationToken.None);
+            await baseFS.OverwriteWith(overwriteFS, System.Threading.CancellationToken.None);
             Assert.Empty(baseFS);
         }
 
         [Fact]
-        public void TestMergeFileSystemsWithFilesWithoutConflicts()
+        public async System.Threading.Tasks.Task TestMergeFileSystemsWithFilesWithoutConflicts()
         {
             AnnoRDA.FileSystem baseFS = new FileSystem();
             baseFS.Root.Add(new File("1503") { ModificationDate = new DateTime(2003, 3, 23, 0, 0, 0, DateTimeKind.Utc) });
@@ -67,7 +63,7 @@ namespace AnnoRDA.Tests.Loader
             overwriteFS.Root.Add(new File("2205") { ModificationDate = new DateTime(2015, 11, 3, 0, 0, 0, DateTimeKind.Utc) });
             overwriteFS.Root.Add(new File("2070") { ModificationDate = new DateTime(2011, 11, 17, 0, 0, 0, DateTimeKind.Utc) });
 
-            baseFS.Merge(overwriteFS, System.Threading.CancellationToken.None);
+            await baseFS.OverwriteWith(overwriteFS, System.Threading.CancellationToken.None);
             Assert.FolderAndFileCountAreEqual(0, 6, baseFS);
             Assert.ContainsFile(baseFS, new Assert.FileSpec("1503") { ModificationDate = new DateTime(2003, 3, 23, 0, 0, 0, DateTimeKind.Utc) });
             Assert.ContainsFile(baseFS, new Assert.FileSpec("1602") { ModificationDate = new DateTime(1998, 9, 24, 0, 0, 0, DateTimeKind.Utc) });
@@ -78,7 +74,7 @@ namespace AnnoRDA.Tests.Loader
         }
 
         [Fact]
-        public void TestMergeFileSystemsWithFilesWithConflicts()
+        public async System.Threading.Tasks.Task TestMergeFileSystemsWithFilesWithConflicts()
         {
             AnnoRDA.FileSystem baseFS = new FileSystem();
             baseFS.Root.Add(new File("1503") { ModificationDate = new DateTime(2001, 1, 1, 0, 0, 0, DateTimeKind.Utc) });
@@ -89,7 +85,7 @@ namespace AnnoRDA.Tests.Loader
             overwriteFS.Root.Add(new File("1503") { ModificationDate = new DateTime(2003, 3, 23, 0, 0, 0, DateTimeKind.Utc) });
             overwriteFS.Root.Add(new File("2070") { ModificationDate = new DateTime(2011, 11, 17, 0, 0, 0, DateTimeKind.Utc) });
 
-            baseFS.Merge(overwriteFS, System.Threading.CancellationToken.None);
+            await baseFS.OverwriteWith(overwriteFS, System.Threading.CancellationToken.None);
             Assert.FolderAndFileCountAreEqual(0, 4, baseFS);
             Assert.ContainsFile(baseFS, new Assert.FileSpec("1503") { ModificationDate = new DateTime(2003, 3, 23, 0, 0, 0, DateTimeKind.Utc) });
             Assert.ContainsFile(baseFS, new Assert.FileSpec("1602") { ModificationDate = new DateTime(1998, 9, 24, 0, 0, 0, DateTimeKind.Utc) });
@@ -98,7 +94,7 @@ namespace AnnoRDA.Tests.Loader
         }
 
         [Fact]
-        public void TestMergeFileSystemsWithFilesAndFolders()
+        public async System.Threading.Tasks.Task TestMergeFileSystemsWithFilesAndFolders()
         {
             AnnoRDA.FileSystem baseFS = new FileSystem();
             baseFS.Root.Add(new File("root file"));
@@ -134,7 +130,7 @@ namespace AnnoRDA.Tests.Loader
             }
             overwriteFS.Root.Add(overwriteFSFolder3);
 
-            baseFS.Merge(overwriteFS, System.Threading.CancellationToken.None);
+            await baseFS.OverwriteWith(overwriteFS, System.Threading.CancellationToken.None);
             Assert.FolderAndFileCountAreEqual(3, 1, baseFS);
             Assert.ContainsFile(baseFS, new Assert.FileSpec("root file"));
             Assert.ContainsFile(baseFS, new Assert.FileSpec("Max Design", "1503") { ModificationDate = new DateTime(2003, 3, 23, 0, 0, 0, DateTimeKind.Utc) });
