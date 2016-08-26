@@ -27,7 +27,7 @@ namespace AnnoRDA.FileDB.Writer
             writer.Dispose();
         }
 
-        public void WriteFileDB(AnnoRDA.FileSystem fileSystem, IList<string> archiveFiles)
+        public void WriteFileDB(AnnoRDA.FileSystem fileSystem, ArchiveFileMap archiveFiles)
         {
             Tags tags = this.CreateTags();
 
@@ -62,7 +62,7 @@ namespace AnnoRDA.FileDB.Writer
             return new Tags(structures, attributes);
         }
 
-        private void WriteArchiveMap(BinaryWriter writer, Tags tags, AnnoRDA.FileSystem fileSystem, IList<string> archiveFiles)
+        private void WriteArchiveMap(BinaryWriter writer, Tags tags, AnnoRDA.FileSystem fileSystem, ArchiveFileMap archiveFiles)
         {
             this.WriteTag(writer, tags, "ArchiveMap");
 
@@ -73,7 +73,7 @@ namespace AnnoRDA.FileDB.Writer
 
             this.WriteTag(writer, tags, "StructureEnd");
         }
-        private void WriteFileTree(BinaryWriter writer, Tags tags, AnnoRDA.FileSystem fileSystem, IList<string> archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
+        private void WriteFileTree(BinaryWriter writer, Tags tags, AnnoRDA.FileSystem fileSystem, ArchiveFileMap archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
         {
             this.WriteTag(writer, tags, "FileTree");
             if (fileSystem.Root.Folders.Any()) {
@@ -84,7 +84,7 @@ namespace AnnoRDA.FileDB.Writer
             }
             this.WriteTag(writer, tags, "StructureEnd");
         }
-        private void WritePathMap(BinaryWriter writer, Tags tags, IEnumerable<AnnoRDA.Folder> folders, string fullPathSoFar, IList<string> archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
+        private void WritePathMap(BinaryWriter writer, Tags tags, IEnumerable<AnnoRDA.Folder> folders, string fullPathSoFar, ArchiveFileMap archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
         {
             this.WriteTag(writer, tags, "PathMap");
             foreach (var folder in folders.OrderBy(folder => folder.Name, new AnnoRDA.Util.NaturalFilenameStringComparer())) {
@@ -93,7 +93,7 @@ namespace AnnoRDA.FileDB.Writer
             }
             this.WriteTag(writer, tags, "StructureEnd");
         }
-        private void WriteFolderContents(BinaryWriter writer, Tags tags, AnnoRDA.Folder folder, string fullPathSoFar, IList<string> archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
+        private void WriteFolderContents(BinaryWriter writer, Tags tags, AnnoRDA.Folder folder, string fullPathSoFar, ArchiveFileMap archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
         {
             this.WriteTag(writer, tags, "List");
             if (folder.Folders.Any()) {
@@ -104,7 +104,7 @@ namespace AnnoRDA.FileDB.Writer
             }
             this.WriteTag(writer, tags, "StructureEnd");
         }
-        private void WriteFileMap(BinaryWriter writer, Tags tags, IEnumerable<AnnoRDA.File> files, string fullPathSoFar, IList<string> archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
+        private void WriteFileMap(BinaryWriter writer, Tags tags, IEnumerable<AnnoRDA.File> files, string fullPathSoFar, ArchiveFileMap archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
         {
             this.WriteTag(writer, tags, "FileMap");
             foreach (var file in files.OrderBy(file => file.Name, new AnnoRDA.Util.NaturalFilenameStringComparer())) {
@@ -113,13 +113,16 @@ namespace AnnoRDA.FileDB.Writer
             }
             this.WriteTag(writer, tags, "StructureEnd");
         }
-        private void WriteFileContents(BinaryWriter writer, Tags tags, AnnoRDA.File file, string fullFilePath, IList<string> archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
+        private void WriteFileContents(BinaryWriter writer, Tags tags, AnnoRDA.File file, string fullFilePath, ArchiveFileMap archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
         {
             this.WriteTag(writer, tags, "List");
 
             this.WriteAttribute(writer, tags, "FileName", (string)fullFilePath);
 
-            int archiveFileIndex = this.GetIndexInList(archiveFiles, file.ContentsSource.BlockContentsSource.ArchiveFilePath);
+            int archiveFileIndex = archiveFiles.GetIndexForLoadPath(file.ContentsSource.BlockContentsSource.ArchiveFilePath);
+            if (archiveFileIndex < 0) {
+                throw new System.ArgumentException("archive file path not present in archive file map");
+            }
             if (archiveFileIndex != 0) {
                 this.WriteAttribute(writer, tags, "ArchiveFileIndex", (int)archiveFileIndex);
             }
@@ -149,14 +152,6 @@ namespace AnnoRDA.FileDB.Writer
 
             this.WriteTag(writer, tags, "StructureEnd");
         }
-        private int GetIndexInList<T>(IList<T> list, T value)
-        {
-            int result = list.IndexOf(value);
-            if (result == -1) {
-                throw new System.ArgumentException("value");
-            }
-            return result;
-        }
         private int GetIndexInListAddIfMissing<T>(IList<T> list, T value)
         {
             int result = list.IndexOf(value);
@@ -166,11 +161,11 @@ namespace AnnoRDA.FileDB.Writer
             }
             return result;
         }
-        private void WriteArchiveFiles(BinaryWriter writer, Tags tags, IList<string> archiveFiles)
+        private void WriteArchiveFiles(BinaryWriter writer, Tags tags, ArchiveFileMap archiveFiles)
         {
             this.WriteTag(writer, tags, "ArchiveFiles");
 
-            foreach (string archiveFile in archiveFiles) {
+            foreach (string archiveFile in archiveFiles.GetNames()) {
                 this.WriteTag(writer, tags, "List");
                 this.WriteAttribute(writer, tags, "String", (string)archiveFile);
                 this.WriteAttribute(writer, tags, "String", (string)"");
@@ -179,7 +174,7 @@ namespace AnnoRDA.FileDB.Writer
 
             this.WriteTag(writer, tags, "StructureEnd");
 
-            this.WriteAttribute(writer, tags, "LastArchiveFile", (string)archiveFiles.Last());
+            this.WriteAttribute(writer, tags, "LastArchiveFile", (string)archiveFiles.GetLastName());
         }
         private void WriteResidentBuffers(BinaryWriter writer, Tags tags, IList<AnnoRDA.BlockContentsSource> residentBuffers)
         {
