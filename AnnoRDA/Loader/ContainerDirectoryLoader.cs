@@ -23,12 +23,12 @@ namespace AnnoRDA.Loader
             }
         }
 
-        public async System.Threading.Tasks.Task<Result> Load(string path)
+        public Result Load(string path)
         {
-            return await Load(path, System.Threading.CancellationToken.None);
+            return this.Load(path, System.Threading.CancellationToken.None);
         }
 
-        public async System.Threading.Tasks.Task<Result> Load(string path, System.Threading.CancellationToken ct)
+        public Result Load(string path, System.Threading.CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
 
@@ -40,8 +40,8 @@ namespace AnnoRDA.Loader
             foreach (string containerPath in containerPaths) {
                 ct.ThrowIfCancellationRequested();
 
-                FileSystem containerFileSystem = await LoadContainerFileSystem(containerPath, ct);
-                fileSystem = await fileSystem.GetFileSystemByMerging(containerFileSystem, ct);
+                FileSystem containerFileSystem = this.fileLoader.Load(containerPath, null, ct);
+                fileSystem = fileSystem.GetFileSystemByMerging(containerFileSystem, null, ct);
             }
 
             return new Result(fileSystem, containerPaths);
@@ -50,11 +50,6 @@ namespace AnnoRDA.Loader
         public static IEnumerable<string> SortContainerPaths(IEnumerable<string> paths)
         {
             return paths.OrderBy((p) => p, new Util.NaturalFilenameStringComparer());
-        }
-
-        private async System.Threading.Tasks.Task<FileSystem> LoadContainerFileSystem(string containerPath, System.Threading.CancellationToken ct)
-        {
-            return await this.fileLoader.Load(containerPath, ct);
         }
     }
 }

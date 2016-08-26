@@ -49,40 +49,44 @@ namespace AnnoRDA.Loader
             this.verifier = new ContainerFileLoaderVerifier();
         }
 
-        public async System.Threading.Tasks.Task<FileSystem> Load(string path)
+        public FileSystem Load(string path)
         {
-            return await this.Load(path, System.Threading.CancellationToken.None);
+            return this.Load(path, null, System.Threading.CancellationToken.None);
         }
 
-        public async System.Threading.Tasks.Task<FileSystem> Load(string path, System.Threading.CancellationToken ct)
+        public FileSystem Load(string path, IProgress<string> progress, System.Threading.CancellationToken ct)
         {
             using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read)) {
                 using (var context = new Context(path, stream, true, new PassThroughFileHeaderTransformer())) {
-                    return await this.Load(context, ct);
+                    return this.Load(context, progress, ct);
                 }
             }
         }
 
-        public async System.Threading.Tasks.Task<FileSystem> Load(Context context, System.Threading.CancellationToken ct)
+        public FileSystem Load(Context context, IProgress<string> progress, System.Threading.CancellationToken ct)
         {
-            return await System.Threading.Tasks.Task.Run(async () => {
-                context.Reader.ReadHeaderMagic();
-                long nextBlockOffset = context.Reader.ReadFirstBlockOffset();
+            context.Reader.ReadHeaderMagic();
+            long nextBlockOffset = context.Reader.ReadFirstBlockOffset();
 
-                while (nextBlockOffset < context.Reader.StreamLength) {
-                    FileEntities.BlockHeader block = context.Reader.ReadBlockHeader(nextBlockOffset);
-                    this.verifier.VerifyBlockHeader(block);
-
-                    await this.LoadFileHeaders(context, block);
-
-                    nextBlockOffset = block.NextBlockOffset;
+            int i = 0;
+            while (nextBlockOffset < context.Reader.StreamLength) {
+                if (progress != null) {
+                    progress.Report("Block " + i);
                 }
 
-                return context.FileSystem;
-            });
+                FileEntities.BlockHeader block = context.Reader.ReadBlockHeader(nextBlockOffset);
+                this.verifier.VerifyBlockHeader(block);
+
+                this.LoadFileHeaders(context, block);
+
+                nextBlockOffset = block.NextBlockOffset;
+                i++;
+            }
+
+            return context.FileSystem;
         }
 
-        public async System.Threading.Tasks.Task LoadFileHeaders(Context context, BlockHeader block)
+        public void LoadFileHeaders(Context context, BlockHeader block)
         {
             BlockContentsSource blockContentsSource = this.CreateBlockContentsSourceAndSeekToFileHeadersStart(context, block);
 
@@ -97,7 +101,7 @@ namespace AnnoRDA.Loader
                         fileHeader = context.FileHeaderTransformer.Transform(fileHeader);
                         this.verifier.VerifyFileHeader(fileHeader, block.IsCompressed, errorOffset);
 
-                        await this.AddFileToFileSystem(context, fileHeader, blockContentsSource);
+                        this.AddFileToFileSystem(context, fileHeader, blockContentsSource);
                     }
                 }
 
@@ -110,12 +114,12 @@ namespace AnnoRDA.Loader
 
         #region Add to FileSystem
 
-        public async System.Threading.Tasks.Task<AnnoRDA.File> AddFileToFileSystem(Context context, FileHeader fileHeader, AnnoRDA.BlockContentsSource blockContentsSource)
+        public AnnoRDA.File AddFileToFileSystem(Context context, FileHeader fileHeader, AnnoRDA.BlockContentsSource blockContentsSource)
         {
             string[] filePathComponents = fileHeader.Path.Split('/');
             AnnoRDA.File file = this.AddFileToFolder(context.FileSystem.Root, fileHeader, filePathComponents, blockContentsSource);
 
-            await this.AddContainedFilesToFileSystem(context, fileHeader, file, blockContentsSource);
+            this.AddContainedFilesToFileSystem(context, fileHeader, file, blockContentsSource);
 
             return file;
         }
@@ -151,7 +155,7 @@ namespace AnnoRDA.Loader
 
         public static readonly string SUB_CONTAINER_SEPARATOR = "|";
 
-        public async System.Threading.Tasks.Task AddContainedFilesToFileSystem(Context context, FileHeader fileHeader, AnnoRDA.File file, AnnoRDA.BlockContentsSource blockContentsSource)
+        public void AddContainedFilesToFileSystem(Context context, FileHeader fileHeader, AnnoRDA.File file, AnnoRDA.BlockContentsSource blockContentsSource)
         {
             if (!this.IsContainerFile(file)) {
                 return;
@@ -162,7 +166,7 @@ namespace AnnoRDA.Loader
                 FileSystem subFileSystem;
                 try {
                     using (var subContext = new Context(context.ContainerFilePath, subContainerStream, true, transformer)) {
-                        subFileSystem = await this.Load(subContext, System.Threading.CancellationToken.None);
+                        subFileSystem = this.Load(subContext, null, System.Threading.CancellationToken.None);
                     }
                 } catch (FormatException) {
                     // not a container file
@@ -172,7 +176,7 @@ namespace AnnoRDA.Loader
                     return;
                 }
                 
-                await context.FileSystem.OverwriteWith(subFileSystem, System.Threading.CancellationToken.None);
+                context.FileSystem.OverwriteWith(subFileSystem, null, System.Threading.CancellationToken.None);
             }
         }
 

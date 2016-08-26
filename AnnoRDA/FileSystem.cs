@@ -12,15 +12,15 @@ namespace AnnoRDA
     {
         public Folder Root { get; set; } = new Folder("");
 
-        public async System.Threading.Tasks.Task<FileSystem> GetFileSystemByMerging(FileSystem overwriteFS, System.Threading.CancellationToken ct)
+        public FileSystem GetFileSystemByMerging(FileSystem overwriteFS, IProgress<string> progress, System.Threading.CancellationToken ct)
         {
-            Folder newRoot = await this.Root.GetFolderByMerging(overwriteFS.Root, ct);
+            Folder newRoot = this.Root.GetFolderByMerging(overwriteFS.Root, progress, ct);
             return new FileSystem() { Root = newRoot };
         }
 
-        public async System.Threading.Tasks.Task OverwriteWith(FileSystem overwriteFS, System.Threading.CancellationToken ct)
+        public void OverwriteWith(FileSystem overwriteFS, IProgress<string> progress, System.Threading.CancellationToken ct)
         {
-            await this.Root.OverwriteWith(overwriteFS.Root, ct);
+            this.Root.OverwriteWith(overwriteFS.Root, progress, ct);
         }
     }
 
@@ -96,8 +96,12 @@ namespace AnnoRDA
             NewOrReplace,
         }
 
-        public async System.Threading.Tasks.Task<Folder> GetFolderByMerging(Folder overwriteFolder, System.Threading.CancellationToken ct)
+        public Folder GetFolderByMerging(Folder overwriteFolder, IProgress<string> progress, System.Threading.CancellationToken ct)
         {
+            if (progress != null) {
+                progress.Report(this.Name);
+            }
+
             Folder result = new Folder(this.Name);
 
             foreach (var overwriteSubFolder in overwriteFolder.Folders) {
@@ -108,7 +112,7 @@ namespace AnnoRDA
                     baseSubFolder = new Folder(overwriteSubFolder.Name);
                 }
 
-                Folder newSubFolder = await baseSubFolder.GetFolderByMerging(overwriteSubFolder, ct);
+                Folder newSubFolder = baseSubFolder.GetFolderByMerging(overwriteSubFolder, progress, ct);
                 result.Add(newSubFolder, AddMode.New);
             }
 
@@ -121,8 +125,12 @@ namespace AnnoRDA
             return result;
         }
 
-        public async System.Threading.Tasks.Task OverwriteWith(Folder overwriteFolder, System.Threading.CancellationToken ct)
+        public void OverwriteWith(Folder overwriteFolder, IProgress<string> progress, System.Threading.CancellationToken ct)
         {
+            if (progress != null) {
+                progress.Report(this.Name);
+            }
+
             foreach (var overwriteSubFolder in overwriteFolder.Folders) {
                 ct.ThrowIfCancellationRequested();
 
@@ -132,7 +140,7 @@ namespace AnnoRDA
                     this.Add(baseSubFolder);
                 }
 
-                await baseSubFolder.OverwriteWith(overwriteSubFolder, ct);
+                baseSubFolder.OverwriteWith(overwriteSubFolder, progress, ct);
             }
 
             foreach (var overwriteFile in overwriteFolder.Files) {

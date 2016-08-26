@@ -17,23 +17,23 @@ namespace AnnoRDA.Tests.Loader
 
 
         [Fact]
-        public async System.Threading.Tasks.Task TestLoadContainerWithNoBlocks()
+        public void TestLoadContainerWithNoBlocks()
         {
-            var actualFS = await this.loader.Load(TestData.GetPath("Containers/2.2_no_blocks.rda"));
+            var actualFS = this.loader.Load(TestData.GetPath("Containers/2.2_no_blocks.rda"));
             Assert.Empty(actualFS);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TestLoadContainerWithEmptyBlock()
+        public void TestLoadContainerWithEmptyBlock()
         {
-            var actualFS = await this.loader.Load(TestData.GetPath("Containers/2.2_empty_block.rda"));
+            var actualFS = this.loader.Load(TestData.GetPath("Containers/2.2_empty_block.rda"));
             Assert.Empty(actualFS);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TestLoadContainerWithEmptyFile()
+        public void TestLoadContainerWithEmptyFile()
         {
-            var actualFS = await this.loader.Load(TestData.GetPath("Containers/2.2_empty_file.rda"));
+            var actualFS = this.loader.Load(TestData.GetPath("Containers/2.2_empty_file.rda"));
 
             Assert.FolderAndFileCountAreEqual(1, 0, actualFS);
             Assert.ContainsFile(actualFS, new Assert.FileSpec("path", "to", "file.txt") {
@@ -45,9 +45,9 @@ namespace AnnoRDA.Tests.Loader
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TestLoadContainerWithFileAndContents()
+        public void TestLoadContainerWithFileAndContents()
         {
-            var actualFS = await this.loader.Load(TestData.GetPath("Containers/2.2_single_file.rda"));
+            var actualFS = this.loader.Load(TestData.GetPath("Containers/2.2_single_file.rda"));
 
             Assert.FolderAndFileCountAreEqual(1, 0, actualFS);
             Assert.ContainsFile(actualFS, new Assert.FileSpec("path", "to", "file.txt") {
@@ -59,9 +59,9 @@ namespace AnnoRDA.Tests.Loader
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TestLoadContainerWithMultipleFiles()
+        public void TestLoadContainerWithMultipleFiles()
         {
-            var actualFS = await this.loader.Load(TestData.GetPath("Containers/2.2_multiple_files.rda"));
+            var actualFS = this.loader.Load(TestData.GetPath("Containers/2.2_multiple_files.rda"));
 
             Assert.FolderAndFileCountAreEqual(2, 1, actualFS);
             Assert.ContainsFile(actualFS, new Assert.FileSpec("path", "to", "file1.txt") {
@@ -91,9 +91,9 @@ namespace AnnoRDA.Tests.Loader
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TestLoadContainerWithCompressedFiles()
+        public void TestLoadContainerWithCompressedFiles()
         {
-            var actualFS = await this.loader.Load(TestData.GetPath("Containers/2.2_multiple_files_compressed.rda"));
+            var actualFS = this.loader.Load(TestData.GetPath("Containers/2.2_multiple_files_compressed.rda"));
 
             Assert.FolderAndFileCountAreEqual(2, 1, actualFS);
             Assert.ContainsFile(actualFS, new Assert.FileSpec("path", "to", "file1.txt") {
@@ -127,9 +127,9 @@ namespace AnnoRDA.Tests.Loader
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TestLoadContainerWithEncryptedFiles()
+        public void TestLoadContainerWithEncryptedFiles()
         {
-            var actualFS = await this.loader.Load(TestData.GetPath("Containers/2.2_multiple_files_encrypted.rda"));
+            var actualFS = this.loader.Load(TestData.GetPath("Containers/2.2_multiple_files_encrypted.rda"));
 
             Assert.FolderAndFileCountAreEqual(2, 1, actualFS);
             Assert.ContainsFile(actualFS, new Assert.FileSpec("path", "to", "file1.txt") {
@@ -163,9 +163,9 @@ namespace AnnoRDA.Tests.Loader
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TestLoadContainerWithCompressedAndEncryptedFiles()
+        public void TestLoadContainerWithCompressedAndEncryptedFiles()
         {
-            var actualFS = await this.loader.Load(TestData.GetPath("Containers/2.2_multiple_files_compressed_encrypted.rda"));
+            var actualFS = this.loader.Load(TestData.GetPath("Containers/2.2_multiple_files_compressed_encrypted.rda"));
 
             Assert.FolderAndFileCountAreEqual(2, 1, actualFS);
             Assert.ContainsFile(actualFS, new Assert.FileSpec("path", "to", "file1.txt") {
@@ -203,9 +203,9 @@ namespace AnnoRDA.Tests.Loader
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TestLoadContainerWithContiguousDataBlock()
+        public void TestLoadContainerWithContiguousDataBlock()
         {
-            var actualFS = await this.loader.Load(TestData.GetPath("Containers/2.2_multiple_files_contiguous.rda"));
+            var actualFS = this.loader.Load(TestData.GetPath("Containers/2.2_multiple_files_contiguous.rda"));
 
             Assert.FolderAndFileCountAreEqual(2, 1, actualFS);
             Assert.ContainsFile(actualFS, new Assert.FileSpec("path", "to", "file1.txt") {
@@ -235,9 +235,9 @@ namespace AnnoRDA.Tests.Loader
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TestLoadContainerWithContiguousCompressedAndEncryptedDataBlock()
+        public void TestLoadContainerWithContiguousCompressedAndEncryptedDataBlock()
         {
-            var actualFS = await this.loader.Load(TestData.GetPath("Containers/2.2_multiple_files_contiguous_compressed_encrypted.rda"));
+            var actualFS = this.loader.Load(TestData.GetPath("Containers/2.2_multiple_files_contiguous_compressed_encrypted.rda"));
             
             Assert.FolderAndFileCountAreEqual(2, 1, actualFS);
             Assert.ContainsFile(actualFS, new Assert.FileSpec("path", "to", "file1.txt") {
@@ -263,9 +263,9 @@ namespace AnnoRDA.Tests.Loader
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TestLoadContainerWithMultipleBlocks()
+        public void TestLoadContainerWithMultipleBlocks()
         {
-            var actualFS = await this.loader.Load(TestData.GetPath("Containers/2.2_multiple_blocks.rda"));
+            var actualFS = this.loader.Load(TestData.GetPath("Containers/2.2_multiple_blocks.rda"));
 
             Assert.FolderAndFileCountAreEqual(2, 1, actualFS);
             Assert.ContainsFile(actualFS, new Assert.FileSpec("path", "to", "file1.txt") {
@@ -307,29 +307,29 @@ namespace AnnoRDA.Tests.Loader
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TestLoadContainerWithInvalidHeader()
+        public void TestLoadContainerWithInvalidHeader()
         {
-            Exception exception = await Assert.ThrowsAsync<AnnoRDA.FileFormatException>(async () => {
+            Exception exception = Assert.Throws<AnnoRDA.FileFormatException>(() => {
                 using (var context = new ContainerFileLoader.Context("dummy.rda", TestData.GetStream(new byte[] { }), false, new PassThroughFileHeaderTransformer())) {
-                    await this.loader.Load(context, CancellationToken.None);
+                    this.loader.Load(context, null, CancellationToken.None);
                 }
             });
             Assert.Equal(new AnnoRDA.FileFormatException(AnnoRDA.FileFormatException.EntityType.RDAHeader, AnnoRDA.FileFormatException.Error.UnexpectedEndOfFile, 0), exception);
             
-            exception = await Assert.ThrowsAsync<AnnoRDA.FileFormatException>(async () => {
-                await this.loader.Load(TestData.GetPath("Containers/2.2_header_cut_off_before_first_block_offset.rda"));
+            exception = Assert.Throws<AnnoRDA.FileFormatException>(() => {
+                this.loader.Load(TestData.GetPath("Containers/2.2_header_cut_off_before_first_block_offset.rda"));
             });
             Assert.Equal(new AnnoRDA.FileFormatException(AnnoRDA.FileFormatException.EntityType.RDAHeader, AnnoRDA.FileFormatException.Error.UnexpectedEndOfFile, 784), exception);
 
-            exception = await Assert.ThrowsAsync<AnnoRDA.FileFormatException>(async () => {
-                await this.loader.Load(TestData.GetPath("Containers/2.2_header_cut_off_inside_first_block_offset.rda"));
+            exception = Assert.Throws<AnnoRDA.FileFormatException>(() => {
+                this.loader.Load(TestData.GetPath("Containers/2.2_header_cut_off_inside_first_block_offset.rda"));
             });
             Assert.Equal(new AnnoRDA.FileFormatException(AnnoRDA.FileFormatException.EntityType.RDAHeader, AnnoRDA.FileFormatException.Error.UnexpectedEndOfFile, 791), exception);
 
             var stream = TestData.GetStream(new byte[] { 12, 43, 21, 0, 4, 2, 1, 54, 21, 23, 44, 1, 2, 3, 4, 5, 6, 21, 122, 99 });
-            exception = await Assert.ThrowsAsync<AnnoRDA.FileFormatException>(async () => {
+            exception = Assert.Throws<AnnoRDA.FileFormatException>(() => {
                 using (var context = new ContainerFileLoader.Context("dummy.rda", stream, false, new PassThroughFileHeaderTransformer())) {
-                    await this.loader.Load(context, CancellationToken.None);
+                    this.loader.Load(context, null, CancellationToken.None);
                 }
             });
             Assert.Equal(new AnnoRDA.FileFormatException(AnnoRDA.FileFormatException.EntityType.RDAHeader, AnnoRDA.FileFormatException.Error.InvalidValue, 0), exception);

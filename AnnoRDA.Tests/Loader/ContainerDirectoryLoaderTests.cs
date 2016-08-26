@@ -41,17 +41,17 @@ namespace AnnoRDA.Tests.Loader
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TestMergeEmptyFileSystems()
+        public void TestMergeEmptyFileSystems()
         {
             AnnoRDA.FileSystem baseFS = new FileSystem();
             AnnoRDA.FileSystem overwriteFS = new FileSystem();
 
-            await baseFS.OverwriteWith(overwriteFS, System.Threading.CancellationToken.None);
+            baseFS.OverwriteWith(overwriteFS, null, System.Threading.CancellationToken.None);
             Assert.Empty(baseFS);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TestMergeFileSystemsWithFilesWithoutConflicts()
+        public void TestMergeFileSystemsWithFilesWithoutConflicts()
         {
             AnnoRDA.FileSystem baseFS = new FileSystem();
             baseFS.Root.Add(new File("1503") { ModificationDate = new DateTime(2003, 3, 23, 0, 0, 0, DateTimeKind.Utc) });
@@ -63,7 +63,7 @@ namespace AnnoRDA.Tests.Loader
             overwriteFS.Root.Add(new File("2205") { ModificationDate = new DateTime(2015, 11, 3, 0, 0, 0, DateTimeKind.Utc) });
             overwriteFS.Root.Add(new File("2070") { ModificationDate = new DateTime(2011, 11, 17, 0, 0, 0, DateTimeKind.Utc) });
 
-            await baseFS.OverwriteWith(overwriteFS, System.Threading.CancellationToken.None);
+            baseFS.OverwriteWith(overwriteFS, null, System.Threading.CancellationToken.None);
             Assert.FolderAndFileCountAreEqual(0, 6, baseFS);
             Assert.ContainsFile(baseFS, new Assert.FileSpec("1503") { ModificationDate = new DateTime(2003, 3, 23, 0, 0, 0, DateTimeKind.Utc) });
             Assert.ContainsFile(baseFS, new Assert.FileSpec("1602") { ModificationDate = new DateTime(1998, 9, 24, 0, 0, 0, DateTimeKind.Utc) });
@@ -74,7 +74,7 @@ namespace AnnoRDA.Tests.Loader
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TestMergeFileSystemsWithFilesWithConflicts()
+        public void TestMergeFileSystemsWithFilesWithConflicts()
         {
             AnnoRDA.FileSystem baseFS = new FileSystem();
             baseFS.Root.Add(new File("1503") { ModificationDate = new DateTime(2001, 1, 1, 0, 0, 0, DateTimeKind.Utc) });
@@ -85,7 +85,7 @@ namespace AnnoRDA.Tests.Loader
             overwriteFS.Root.Add(new File("1503") { ModificationDate = new DateTime(2003, 3, 23, 0, 0, 0, DateTimeKind.Utc) });
             overwriteFS.Root.Add(new File("2070") { ModificationDate = new DateTime(2011, 11, 17, 0, 0, 0, DateTimeKind.Utc) });
 
-            await baseFS.OverwriteWith(overwriteFS, System.Threading.CancellationToken.None);
+            baseFS.OverwriteWith(overwriteFS, null, System.Threading.CancellationToken.None);
             Assert.FolderAndFileCountAreEqual(0, 4, baseFS);
             Assert.ContainsFile(baseFS, new Assert.FileSpec("1503") { ModificationDate = new DateTime(2003, 3, 23, 0, 0, 0, DateTimeKind.Utc) });
             Assert.ContainsFile(baseFS, new Assert.FileSpec("1602") { ModificationDate = new DateTime(1998, 9, 24, 0, 0, 0, DateTimeKind.Utc) });
@@ -94,7 +94,7 @@ namespace AnnoRDA.Tests.Loader
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TestMergeFileSystemsWithFilesAndFolders()
+        public void TestMergeFileSystemsWithFilesAndFolders()
         {
             AnnoRDA.FileSystem baseFS = new FileSystem();
             baseFS.Root.Add(new File("root file"));
@@ -130,7 +130,7 @@ namespace AnnoRDA.Tests.Loader
             }
             overwriteFS.Root.Add(overwriteFSFolder3);
 
-            await baseFS.OverwriteWith(overwriteFS, System.Threading.CancellationToken.None);
+            baseFS.OverwriteWith(overwriteFS, null, System.Threading.CancellationToken.None);
             Assert.FolderAndFileCountAreEqual(3, 1, baseFS);
             Assert.ContainsFile(baseFS, new Assert.FileSpec("root file"));
             Assert.ContainsFile(baseFS, new Assert.FileSpec("Max Design", "1503") { ModificationDate = new DateTime(2003, 3, 23, 0, 0, 0, DateTimeKind.Utc) });
