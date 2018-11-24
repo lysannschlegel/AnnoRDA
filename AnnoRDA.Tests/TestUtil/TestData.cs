@@ -6,7 +6,7 @@ namespace AnnoRDA.Tests.TestUtil
     {
         internal static string GetPath(string filename)
         {
-            return "MockData/" + filename;
+            return "../../../MockData/" + filename;
         }
 
         internal static Stream GetStream(string filename)
