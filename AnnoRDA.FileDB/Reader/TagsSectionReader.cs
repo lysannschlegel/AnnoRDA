@@ -24,9 +24,10 @@ namespace AnnoRDA.FileDB.Reader
 
         public Tags ReadTagsSection()
         {
-            Dictionary<ushort, Tag> structures = ReadTagDictionary(Tag.TagType.StructureStart);
-            Dictionary<ushort, Tag> attributes = ReadTagDictionary(Tag.TagType.Attribute);
-            return new Tags(structures, attributes);
+            var Result = new Tags();
+            Result.AddEntries(ReadTagDictionary(Tag.TagType.StructureStart));
+            Result.AddEntries(ReadTagDictionary(Tag.TagType.Attribute));
+            return Result;
         }
 
         private Dictionary<ushort, Tag> ReadTagDictionary(Tag.TagType expectedTagType)

@@ -2,11 +2,11 @@ using AnnoRDA.FileDB.Structs;
 
 namespace AnnoRDA.FileDB.Reader
 {
-    public class FileDBReader : System.IDisposable
+    public class DBReader : System.IDisposable
     {
         private readonly BinaryReader reader;
 
-        public FileDBReader(System.IO.Stream stream, bool leaveOpen)
+        public DBReader(System.IO.Stream stream, bool leaveOpen)
         {
             if (!stream.CanRead) {
                 throw new System.ArgumentException("stream must be readable");
@@ -18,7 +18,7 @@ namespace AnnoRDA.FileDB.Reader
             this.reader = new BinaryReader(stream, System.Text.Encoding.Unicode, leaveOpen);
         }
 
-        public FileDBReader(System.IO.Stream stream)
+        public DBReader(System.IO.Stream stream)
         : this(stream, false)
         {}
 
