@@ -2,42 +2,79 @@
 
 namespace AnnoRDA.Tests.Util
 {
-    public class NaturalFilenameComparerTests
+    public class StringComparerTests
     {
+        private System.Collections.Generic.IComparer<string> comparer = new AnnoRDA.Util.InvariantIndividualCharacterStringComparer();
+
         [Fact]
         public void TestSingleCharaterStringComparison()
         {
-            Assert.Equal(0, new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("a", "a"));
-            Assert.LessThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("a", "b"), -1);
-            Assert.GreaterThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("b", "a"), 1);
+            Assert.Equal(this.comparer.Compare("a", "a") ,0);
+            Assert.LessThanOrEqual(this.comparer.Compare("a", "b"), -1);
+            Assert.GreaterThanOrEqual(this.comparer.Compare("b", "a"), 1);
+        }
 
-            Assert.Equal(0, new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("A", "a"));
-            Assert.LessThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("1", "a"), -1);
-            Assert.LessThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare(".", "a"), -1);
+        [Fact]
+        public void TestCaseSensitivityStringComparison()
+        {
+            Assert.Equal(this.comparer.Compare("A", "a"), 0);
+        }
+
+        [Fact]
+        public void TestSpecialCharaterComparison()
+        {
+            Assert.LessThanOrEqual(this.comparer.Compare("1", "a"), -1);
+            Assert.LessThanOrEqual(this.comparer.Compare(".", "a"), -1);
+            Assert.LessThanOrEqual(this.comparer.Compare("-", "."), -1);
         }
 
         [Fact]
         public void TestMultiCharaterStringComparison()
         {
-            Assert.Equal(0, new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("aaa", "aaa"));
-            Assert.GreaterThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("aaaa", "aaa"), 1);
-            Assert.LessThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("aaa", "aab"), -1);
-            Assert.LessThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("aaaa", "aab"), -1);
+            Assert.Equal(this.comparer.Compare("aaa", "aaa"), 0);
+            Assert.GreaterThanOrEqual(this.comparer.Compare("aaaa", "aaa"), 1);
+            Assert.LessThanOrEqual(this.comparer.Compare("aaa", "aab"), -1);
+            Assert.LessThanOrEqual(this.comparer.Compare("aaaa", "aab"), -1);
         }
-        
+
         [Fact]
-        public void TestFileNameWithNumbersStringComparison()
+        public void TestFileNameWithNumberSuffixStringComparison()
         {
-            Assert.LessThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("data1.rda", "data2.rda"), -1);
-            Assert.LessThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("data1.rda", "data10.rda"), -1);
-            Assert.LessThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("data2.rda", "data10.rda"), -1);
+            Assert.LessThanOrEqual(this.comparer.Compare("arctic_global.xml", "arctic_global02.xml"), -1);
+            Assert.LessThanOrEqual(this.comparer.Compare("orbit_test_andre.xml", "orbit_test_andre1.xml"), -1);
+            Assert.LessThanOrEqual(this.comparer.Compare("sector_effects_heavy_rain.xml", "sector_effects_heavy_rain02.xml"), -1);
         }
 
         [Fact]
         public void TestFileNameWithUnderscoresStringComparison()
         {
-            Assert.LessThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("arctic_global02.xml", "arctic_global02_bak.xml"), -1);
-            Assert.LessThanOrEqual(new AnnoRDA.Util.NaturalFilenameStringComparer().Compare("fpp_session01.xml", "fpp_session01_change_sunpower.xml"), -1);
+            Assert.LessThanOrEqual(this.comparer.Compare("arctic_global02.xml", "arctic_global02_bak.xml"), -1);
+            Assert.LessThanOrEqual(this.comparer.Compare("fpp_session01.xml", "fpp_session01_change_sunpower.xml"), -1);
+        }
+
+        [Fact]
+        public void TestFileNameWithDashesStringComparison()
+        {
+            Assert.LessThanOrEqual(this.comparer.Compare("grid-light.js", "grid.js"), -1);
+        }
+    }
+
+    public class NaturalFilenameComparerTests
+    {
+        private System.Collections.Generic.IComparer<string> comparer = new AnnoRDA.Util.NaturalFilenameStringComparer();
+
+        [Fact]
+        public void TestCaseSensitivityStringComparison()
+        {
+           Assert.Equal(0, this.comparer.Compare("A", "a"));
+        }
+
+        [Fact]
+        public void TestFileNameWithNumbersStringComparison()
+        {
+            Assert.LessThanOrEqual(this.comparer.Compare("data1.rda", "data2.rda"), -1);
+            Assert.LessThanOrEqual(this.comparer.Compare("data1.rda", "data10.rda"), -1);
+            Assert.LessThanOrEqual(this.comparer.Compare("data2.rda", "data10.rda"), -1);
         }
     }
 }

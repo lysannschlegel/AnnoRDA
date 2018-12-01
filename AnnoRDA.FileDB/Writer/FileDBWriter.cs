@@ -8,6 +8,7 @@ namespace AnnoRDA.FileDB.Writer
     public class FileDBWriter : System.IDisposable
     {
         private readonly BinaryWriter writer;
+        private readonly IComparer<string> fileNameComparer = new AnnoRDA.Util.InvariantIndividualCharacterStringComparer();
 
         public FileDBWriter(System.IO.Stream stream, bool leaveOpen)
         {
@@ -87,7 +88,7 @@ namespace AnnoRDA.FileDB.Writer
         private void WritePathMap(BinaryWriter writer, Tags tags, IEnumerable<AnnoRDA.Folder> folders, string fullPathSoFar, ArchiveFileMap archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
         {
             this.WriteTag(writer, tags, "PathMap");
-            foreach (var folder in folders.OrderBy(folder => folder.Name, new AnnoRDA.Util.NaturalFilenameStringComparer())) {
+            foreach (var folder in folders.OrderBy(folder => folder.Name, this.fileNameComparer)) {
                 this.WriteAttribute(writer, tags, "String", (string)folder.Name);
                 this.WriteFolderContents(writer, tags, folder, fullPathSoFar + folder.Name + "/", archiveFiles, residentBuffers);
             }
@@ -107,7 +108,7 @@ namespace AnnoRDA.FileDB.Writer
         private void WriteFileMap(BinaryWriter writer, Tags tags, IEnumerable<AnnoRDA.File> files, string fullPathSoFar, ArchiveFileMap archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
         {
             this.WriteTag(writer, tags, "FileMap");
-            foreach (var file in files.OrderBy(file => file.Name, new AnnoRDA.Util.NaturalFilenameStringComparer())) {
+            foreach (var file in files.OrderBy(file => file.Name, this.fileNameComparer)) {
                 this.WriteAttribute(writer, tags, "String", (string)file.Name);
                 this.WriteFileContents(writer, tags, file, fullPathSoFar + file.Name, archiveFiles, residentBuffers);
             }

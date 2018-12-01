@@ -1,9 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace AnnoRDA.Util
 {
+    public sealed class InvariantIndividualCharacterStringComparer : IComparer<string>
+    {
+        public int Compare(string a, string b)
+        {
+            int minLength = Math.Min(a.Length, b.Length);
+            for (int i = 0; i < minLength; ++i)
+            {
+                int charCompareResult = Char.ToLowerInvariant(a[i]).CompareTo(Char.ToLowerInvariant(b[i]));
+                if (charCompareResult != 0)
+                {
+                    return charCompareResult;
+                }
+            }
+            return a.Length - b.Length;
+        }
+    }
+
     internal static class NaturalStringComparer
     {
         // http://stackoverflow.com/a/9745132/467840
@@ -91,14 +107,6 @@ namespace AnnoRDA.Util
         public int Compare(string a, string b)
         {
             return NaturalStringComparer.Compare(a, b);
-        }
-    }
-
-    public sealed class NaturalFileInfoNameComparer : IComparer<FileInfo>
-    {
-        public int Compare(FileInfo a, FileInfo b)
-        {
-            return NaturalStringComparer.Compare(a.Name, b.Name);
         }
     }
 }
