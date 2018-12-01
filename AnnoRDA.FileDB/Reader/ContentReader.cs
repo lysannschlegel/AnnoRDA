@@ -1,7 +1,15 @@
 using AnnoRDA.FileDB.Structs;
+using System.Collections.Generic;
 
 namespace AnnoRDA.FileDB.Reader
 {
+    public interface IContentReaderDelegate
+    {
+        void OnStructureStart(Tag tag);
+        void OnStructureEnd(Tag tag);
+        void OnAttribute(Tag tag, byte[] value);
+    }
+
     public class ContentReader
     {
         private readonly BinaryReader reader;
@@ -11,6 +19,15 @@ namespace AnnoRDA.FileDB.Reader
         {
             this.reader = reader;
             this.tags = tags;
+        }
+
+        public void ReadContent(IContentReaderDelegate contentDelegate)
+        {
+            Tag tag = this.ReadTag();
+            if (tag.Type != Tag.TagType.StructureStart) {
+                throw new System.FormatException(System.String.Format("Root node should be structure, but tag was {0} ({1})", tag.Type, tag.Name));
+            }
+            this.ReadStructure(tag, contentDelegate);
         }
 
         public Tag ReadTag()
@@ -25,45 +42,34 @@ namespace AnnoRDA.FileDB.Reader
             }
         }
 
-        public Node ReadContent()
+        private void ReadStructure(Tag tag, IContentReaderDelegate contentDelegate)
         {
-            Tag tag = this.ReadTag();
-            if (tag.Type != Tag.TagType.StructureStart) {
-                throw new System.FormatException(System.String.Format("Root node should be structure, but tag was {0} ({1})", tag.Type, tag.Name));
-            }
-            Node result = this.ReadStructure(tag);
-            return result;
-        }
+            contentDelegate.OnStructureStart(tag);
 
-        private Node ReadStructure(Tag tag)
-        {
-            Node result = new Node(tag);
             while (true) {
                 Tag innerTag = this.ReadTag();
                 switch (innerTag.Type) {
                     case Tag.TagType.Attribute: {
-                        Node child = this.ReadAttribute(innerTag);
-                        result.AddChild(child);
+                        this.ReadAttribute(innerTag, contentDelegate);
                         break;
                     }
                     case Tag.TagType.StructureStart: {
-                        Node child = this.ReadStructure(innerTag);
-                        result.AddChild(child);
+                        this.ReadStructure(innerTag, contentDelegate);
                         break;
                     }
                     case Tag.TagType.StructureEnd: {
-                        return result;
+                        contentDelegate.OnStructureEnd(innerTag);
+                        return;
                     }
                 }
             }
         }
 
-        private Node ReadAttribute(Tag tag)
+        private void ReadAttribute(Tag tag, IContentReaderDelegate contentDelegate)
         {
             var valueLength = this.reader.Read7BitEncodedInt();
             byte[] value = this.reader.ReadBytes(valueLength);
-            Node result = new Node(tag, value);
-            return result;
+            contentDelegate.OnAttribute(tag, value);
         }
     }
 }

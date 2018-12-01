@@ -27,7 +27,7 @@ namespace AnnoRDA.FileDB.Reader
             reader.Dispose();
         }
 
-        public Node ReadFile()
+        public void ReadFile(IContentReaderDelegate contentDelegate)
         {
             var tagSectionReader = new TagsSectionReader(this.reader);
             long tagsSectionPosition = tagSectionReader.FindTagsSection();
@@ -36,7 +36,7 @@ namespace AnnoRDA.FileDB.Reader
 
             var contentReader = new ContentReader(this.reader, tags);
             this.reader.BaseStream.Position = 0;
-            Node content = contentReader.ReadContent();
+            contentReader.ReadContent(contentDelegate);
 
             Tag tag = contentReader.ReadTag();
             if (tag.Type != Tag.TagType.StructureEnd) {
@@ -45,8 +45,6 @@ namespace AnnoRDA.FileDB.Reader
             if (this.reader.BaseStream.Position != tagsSectionPosition) {
                 throw new System.FormatException(System.String.Format("Unexpected position at end of content; expected: {0}, was: {1}", tagSectionReader, this.reader.BaseStream.Position));
             }
-
-            return content;
         }
     }
 }
