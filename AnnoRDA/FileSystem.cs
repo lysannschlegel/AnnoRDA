@@ -36,12 +36,12 @@ namespace AnnoRDA
     {
         public string Name { get; set; }
 
-        private List<Folder> folders = new List<Folder>();
-        public IEnumerable<Folder> Folders { get { return folders; } }
-        private List<File> files = new List<File>();
-        public IEnumerable<File> Files { get { return files; } }
+        private IDictionary<string, Folder> folders = new Dictionary<string, Folder>();
+        public IEnumerable<Folder> Folders { get { return folders.Values; } }
+        private IDictionary<string, File> files = new Dictionary<string, File>();
+        public IEnumerable<File> Files { get { return files.Values; } }
         
-        public IEnumerable<IFileSystemItem> Children { get { return ((IEnumerable<IFileSystemItem>)this.folders).Concat(files); } }
+        public IEnumerable<IFileSystemItem> Children { get { return ((IEnumerable<IFileSystemItem>)this.Folders).Concat(this.Files); } }
         public int ChildCount { get { return this.folders.Count + this.files.Count; } }
 
         public Folder(string name)
@@ -51,7 +51,8 @@ namespace AnnoRDA
 
         public void Add(Folder folder, AddMode addMode = AddMode.NewOrReplace)
         {
-            var existingFolder = this.folders.FirstOrDefault((f) => f.Name == folder.Name);
+            Folder existingFolder;
+            this.folders.TryGetValue(folder.Name, out existingFolder);
 
             if (existingFolder != null && addMode == AddMode.New) {
                 throw new ArgumentException("A folder with this name already exists", "folder");
@@ -60,13 +61,14 @@ namespace AnnoRDA
             }
 
             if (existingFolder != null) {
-                this.folders.Remove(existingFolder);
+                this.folders.Remove(folder.Name);
             }
-            this.folders.Add(folder);
+            this.folders.Add(folder.Name, folder);
         }
         public void Add(File file, AddMode addMode = AddMode.NewOrReplace)
         {
-            var existingFile = this.files.FirstOrDefault((f) => f.Name == file.Name);
+            File existingFile;
+            this.files.TryGetValue(file.Name, out existingFile);
 
             if (existingFile != null && addMode == AddMode.New) {
                 throw new ArgumentException("A file with this name already exists", "file");
@@ -75,9 +77,9 @@ namespace AnnoRDA
             }
 
             if (existingFile != null) {
-                this.files.Remove(existingFile);
+                this.files.Remove(file.Name);
             }
-            this.files.Add(file);
+            this.files.Add(file.Name, file);
         }
 
         public enum AddMode
