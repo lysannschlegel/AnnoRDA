@@ -7,7 +7,7 @@ namespace AnnoRDA.FileDB.Reader
     {
         void OnStructureStart(Tag tag);
         void OnStructureEnd(Tag tag);
-        void OnAttribute(Tag tag, byte[] value);
+        void OnAttribute(Tag tag, AttributeValue value);
     }
 
     public class ContentReader
@@ -67,9 +67,9 @@ namespace AnnoRDA.FileDB.Reader
 
         private void ReadAttribute(Tag tag, IContentReaderDelegate contentDelegate)
         {
-            var valueLength = this.reader.Read7BitEncodedInt();
-            byte[] value = this.reader.ReadBytes(valueLength);
-            contentDelegate.OnAttribute(tag, value);
+            var numBytes = this.reader.Read7BitEncodedInt();
+            byte[] bytes = this.reader.ReadBytes(numBytes);
+            contentDelegate.OnAttribute(tag, new AttributeValue(bytes));
         }
     }
 }
