@@ -157,7 +157,7 @@ namespace AnnoRDA.Loader
 
         public void AddContainedFilesToFileSystem(Context context, FileHeader fileHeader, AnnoRDA.File file, AnnoRDA.BlockContentsSource blockContentsSource)
         {
-            if (!this.IsContainerFile(file)) {
+            if (!IsContainerFile(file)) {
                 return;
             }
 
@@ -171,18 +171,34 @@ namespace AnnoRDA.Loader
                 } catch (FormatException) {
                     // not a container file
                     return;
-                } catch (ArgumentException) {
-                    // not supported as container file
-                    return;
                 }
                 
                 context.FileSystem.OverwriteWith(subFileSystem, null, System.Threading.CancellationToken.None);
             }
         }
 
-        public bool IsContainerFile(AnnoRDA.File file)
+        static readonly string[] CONTAINER_FILE_EXTENSIONS = { ".a6m", ".a7m", ".a7t" };
+        public static bool IsContainerFile(AnnoRDA.File file)
         {
-            return file.Name == "rd3d.data" || Path.GetExtension(file.Name) == ".a6m";
+            if (file.Name == "rd3d.data") {
+                return true;
+            } else {
+                string extension = GetExtension(file.Name);
+                return CONTAINER_FILE_EXTENSIONS.Contains(extension);
+            }
+        }
+        private static string GetExtension(string fileName)
+        {
+            // not using System.IO.Path.GetExtension since that will throw when there are '|' in the name
+            const char EXTENSION_SEPARATOR_CHAR = '.';
+            char[] chars = { EXTENSION_SEPARATOR_CHAR, Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+            int lastIndex = fileName.LastIndexOfAny(chars);
+            if (lastIndex > 0) {
+                if (fileName[lastIndex] == EXTENSION_SEPARATOR_CHAR) {
+                    return fileName.Substring(lastIndex);
+                }
+            }
+            return string.Empty;
         }
 
         #endregion
