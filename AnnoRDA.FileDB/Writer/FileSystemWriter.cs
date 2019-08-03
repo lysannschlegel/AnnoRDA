@@ -55,12 +55,8 @@ namespace AnnoRDA.FileDB.Writer
         private void WriteFileTree(AnnoRDA.FileSystem fileSystem, ArchiveFileMap archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
         {
             this.WriteStructureStart(FileSystemTags.Structures.Names.FileTree);
-            if (fileSystem.Root.Folders.Any()) {
-                this.WritePathMap(fileSystem.Root.Folders, "", archiveFiles, residentBuffers);
-            }
-            if (fileSystem.Root.Files.Any()) {
-                this.WriteFileMap(fileSystem.Root.Files, "", archiveFiles, residentBuffers);
-            }
+            this.WritePathMap(fileSystem.Root.Folders, "", archiveFiles, residentBuffers);
+            this.WriteFileMap(fileSystem.Root.Files, "", archiveFiles, residentBuffers);
             this.WriteStructureEnd();
         }
         private void WritePathMap(IEnumerable<AnnoRDA.Folder> folders, string fullPathSoFar, ArchiveFileMap archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
@@ -75,12 +71,8 @@ namespace AnnoRDA.FileDB.Writer
         private void WriteFolderContents(AnnoRDA.Folder folder, string fullPathSoFar, ArchiveFileMap archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
         {
             this.WriteListStart();
-            if (folder.Folders.Any()) {
-                this.WritePathMap(folder.Folders, fullPathSoFar, archiveFiles, residentBuffers);
-            }
-            if (folder.Files.Any()) {
-                this.WriteFileMap(folder.Files, fullPathSoFar, archiveFiles, residentBuffers);
-            }
+            this.WritePathMap(folder.Folders, fullPathSoFar, archiveFiles, residentBuffers);
+            this.WriteFileMap(folder.Files, fullPathSoFar, archiveFiles, residentBuffers);
             this.WriteListEnd();
         }
         private void WriteFileMap(IEnumerable<AnnoRDA.File> files, string fullPathSoFar, ArchiveFileMap archiveFiles, IList<AnnoRDA.BlockContentsSource> residentBuffers)
