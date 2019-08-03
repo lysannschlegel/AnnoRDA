@@ -32,7 +32,7 @@ namespace AnnoRDA.Loader
         {
             ct.ThrowIfCancellationRequested();
 
-            IEnumerable<string> containerPaths = Directory.GetFiles(path, "data*.rda");
+            IEnumerable<string> containerPaths = Directory.GetFiles(path, "*.rda");
             containerPaths = SortContainerPaths(containerPaths);
 
             FileSystem fileSystem = new FileSystem();
