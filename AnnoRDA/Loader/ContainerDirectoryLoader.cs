@@ -41,7 +41,7 @@ namespace AnnoRDA.Loader
                 ct.ThrowIfCancellationRequested();
 
                 FileSystem containerFileSystem = this.fileLoader.Load(containerPath, null, ct);
-                fileSystem = fileSystem.GetFileSystemByMerging(containerFileSystem, null, ct);
+                fileSystem.OverwriteWith(containerFileSystem, null, ct);
             }
 
             return new Result(fileSystem, containerPaths);

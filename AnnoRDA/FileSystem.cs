@@ -12,12 +12,6 @@ namespace AnnoRDA
     {
         public Folder Root { get; set; } = new Folder("");
 
-        public FileSystem GetFileSystemByMerging(FileSystem overwriteFS, IProgress<string> progress, System.Threading.CancellationToken ct)
-        {
-            Folder newRoot = this.Root.GetFolderByMerging(overwriteFS.Root, progress, ct);
-            return new FileSystem() { Root = newRoot };
-        }
-
         public void OverwriteWith(FileSystem overwriteFS, IProgress<string> progress, System.Threading.CancellationToken ct)
         {
             this.Root.OverwriteWith(overwriteFS.Root, progress, ct);
@@ -96,35 +90,6 @@ namespace AnnoRDA
             /// If no item with this name and type does not exist yet, add the item. Else replace the existing item.
             /// </summary>
             NewOrReplace,
-        }
-
-        public Folder GetFolderByMerging(Folder overwriteFolder, IProgress<string> progress, System.Threading.CancellationToken ct)
-        {
-            if (progress != null) {
-                progress.Report(this.Name);
-            }
-
-            Folder result = new Folder(this.Name);
-
-            foreach (var overwriteSubFolder in overwriteFolder.Folders) {
-                ct.ThrowIfCancellationRequested();
-
-                var baseSubFolder = result.Folders.FirstOrDefault((f) => f.Name == overwriteSubFolder.Name);
-                if (baseSubFolder == null) {
-                    baseSubFolder = new Folder(overwriteSubFolder.Name);
-                }
-
-                Folder newSubFolder = baseSubFolder.GetFolderByMerging(overwriteSubFolder, progress, ct);
-                result.Add(newSubFolder, AddMode.New);
-            }
-
-            foreach (var overwriteFile in overwriteFolder.Files) {
-                ct.ThrowIfCancellationRequested();
-
-                result.Add(overwriteFile.DeepClone());
-            }
-
-            return result;
         }
 
         public void OverwriteWith(Folder overwriteFolder, IProgress<string> progress, System.Threading.CancellationToken ct)
