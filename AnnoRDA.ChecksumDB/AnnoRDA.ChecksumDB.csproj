@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
+    <AssemblyName>AnnoRDA.ChecksumDB</AssemblyName>
+    <PackageId>AnnoRDA.ChecksumDB</PackageId>
+  </PropertyGroup>
+
+</Project>
