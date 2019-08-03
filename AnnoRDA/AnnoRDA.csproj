@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
     <AssemblyName>AnnoRDA</AssemblyName>
-    <PackageId>AnnoRDA</PackageId>
+    <VersionPrefix>1.1.0</VersionPrefix>
   </PropertyGroup>
 
 </Project>

@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
     <AssemblyName>AnnoRDA.Tests</AssemblyName>
-    <PackageId>AnnoRDA.Tests</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
